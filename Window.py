@@ -3,7 +3,7 @@ from tkinter import Tk, Label, Entry, Button, Listbox, END, Toplevel
 
 # Cria a janela principal
 mainWindow = Tk()
-mainWindow.geometry("640x480")  # Define a resolução inicial da janela
+mainWindow.geometry("640x500")  # Define a resolução inicial da janela
 dbm = DataBaseManager()
 
 # Inicializa as instâncias do DAO para cada coleção
@@ -80,34 +80,46 @@ def delete_marca():
     marca_dao.delete(marca_id)
     print('Marca excluída:', marca_id)
 
-# Função para atualizar uma marca
 def update_marca():
-    marca_id = lb_marcas.get(lb_marcas.curselection())
-    marca = marca_dao.get(marca_id)
+    # Verifica se um item está selecionado na lista de marcas
+    if lb_marcas.curselection():
+        marca_id = lb_marcas.get(lb_marcas.curselection())
+        print("Marca_id: " + marca_id)
+        marca = marca_dao.getById(marca_id)
 
-    update_window = Toplevel(mainWindow)
-    update_window.title("Atualizar Marca")
-    update_window.geometry("300x200")
+        update_window = Toplevel(mainWindow)
+        update_window.title("Atualizar Marca")
+        update_window.geometry("300x200")
 
-    # Campo de texto para o novo nome da marca
-    lbl_novo_nome = Label(update_window, text="Novo nome:")
-    lbl_novo_nome.pack()
-    ct_novo_nome = Entry(update_window)
-    ct_novo_nome.pack()
+        # Campo de texto para o novo nome da marca
+        lbl_novo_nome = Label(update_window, text="Novo nome:")
+        lbl_novo_nome.pack()
+        ct_novo_nome = Entry(update_window)
+        ct_novo_nome.pack()
 
-    # Preenche o campo de texto com o nome atual da marca
-    ct_novo_nome.insert(0, marca['nome'])
+        # Preenche o campo de texto com o nome atual da marca
+        
+        # Função para confirmar a atualização da marca
+        def confirm_update():
+            novo_nome = ct_novo_nome.get()
+            marca_dao.update(marca_id, novo_nome)
+            print(marca_dao.update(marca_id, novo_nome))
+            
+            # Atualiza a variável 'marca' com o novo nome
+            marca['nome'] = novo_nome
+            
+            # Atualiza o campo de texto com o novo nome da marca
+            ct_novo_nome.delete(0, END)
+            ct_novo_nome.insert(0, novo_nome)
+            update_window.destroy()
+            print('Marca atualizada:', novo_nome)
 
-    # Função para confirmar a atualização da marca
-    def confirm_update():
-        novo_nome = ct_novo_nome.get()
-        marca_dao.update(marca_id, {'nome': novo_nome})
-        update_window.destroy()
-        print('Marca atualizada:', marca_id)
+        # Botão para confirmar a atualização
+        btn_confirm = Button(update_window, text="Confirmar", command=confirm_update)
+        btn_confirm.pack()
 
-    # Botão para confirmar a atualização
-    btn_confirm = Button(update_window, text="Confirmar", command=confirm_update)
-    btn_confirm.pack()
+    else:
+        print('Nenhuma marca selecionada.')
 
 #==================== BANCO ========================================
 # Cria os rótulos para os campos de texto
@@ -137,12 +149,12 @@ CollName3 = Label(mainWindow, text="Collection Extra")
 CollName3.grid(row=5, column=0)
 
 # Cria os campos de texto das coleções
-ct_coll1 = Entry(mainWindow)
-ct_coll1.grid(row=3, column=1)
-ct_coll2 = Entry(mainWindow)
-ct_coll2.grid(row=4, column=1)
-ct_coll3 = Entry(mainWindow)
-ct_coll3.grid(row=5, column=1)
+CollName1 = Entry(mainWindow)
+CollName1.grid(row=3, column=1)
+CollName2 = Entry(mainWindow)
+CollName2.grid(row=4, column=1)
+CollName3 = Entry(mainWindow)
+CollName3.grid(row=5, column=1)
 #==================== COLLECTIONS ========================================
 
 # Cria o botão para conectar ao banco de dados

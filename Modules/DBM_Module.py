@@ -1,4 +1,5 @@
 from pymongo import MongoClient
+from bson.objectid import ObjectId
 
 class DataBaseManager:
     
@@ -39,14 +40,26 @@ class MarcaDAO:
     def add(self, marca):
         return self.collection.insert_one(marca).inserted_id
 
-    def edit(self, id, marca):
-        return self.collection.update_one({'_id': id}, {'$set': marca}).modified_count
-
     def delete(self, id):
-        return self.collection.delete_one({'_id': id}).deleted_count
+        filter = {'_id': ObjectId(id)}
+        result = self.collection.delete_one(filter)
+        if result.deleted_count > 0:
+            return True
+        else:
+            return False
+
+    def update(self, id, nome):
+        filter = {'_id': ObjectId(id)}
+        update = {'$set': {'nome': nome}}
+        result = self.collection.update_one(filter, update)
+        if result.modified_count > 0:
+            return True
+        else:
+            return False
 
     def getById(self, id):
-        return self.collection.find_one({'_id': id})
+        objI = ObjectId(id)
+        return self.collection.find_one({'_id': objI})
 
     def getAll(self):
         return list(self.collection.find())
